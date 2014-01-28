@@ -75,6 +75,4 @@ events.on('entity.ProjectileHitEvent', function (listener, event) {
   } else if (color == 'BLACK') {
     scores[event.entity.shooter] += 8;
   }
-
-  server.onlinePlayers[0].sendMessage(scores);
 });
