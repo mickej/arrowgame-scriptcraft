@@ -1,8 +1,12 @@
-// Skapar upp en väg med en piltavla vid slutet av vägen.
+'use strict';
+var Drone = require('drone');
+
+// Skapar en väg med en piltavla vid slutet av vägen.
 // Anropas genom att skriva "/js piltavla(20)" i chatten.
-exports.piltavla = function(leng) {
-  // Skapa en ny drone
-  var drone = new Drone();
+function piltavla(leng) {
+  leng = leng || 20;
+  // Vi är redan en drone
+  var drone = this;
 
   // Skapa startplats, där man ska skjuta ifrån
   drone.box(blocks.gold, 3, 1, 1);
@@ -14,11 +18,11 @@ exports.piltavla = function(leng) {
   drone.left(2);
   drone.up(1);
 
-  // Nu ska vi göra piltavlan, den är lite mer avancerad
+  // Nu ska vi göra piltavlan. Den är lite mer avancerad
   // Börja med att ange vilka färger den ska bestå av
   var colors = [blocks.wool.yellow, blocks.wool.red, blocks.wool.white, blocks.wool.black];
-  for (var i = 0;i < colors.length; i++) {
-    var bm = drone._getBlockIdAndMeta(colors[i]);
+  for (var i = 0; i < colors.length; i += 1) {
+    var bm = drone.getBlockIdAndMeta(colors[i]);
     drone.arc({
         blockType: bm[0],
         meta: bm[1],
@@ -31,3 +35,7 @@ exports.piltavla = function(leng) {
         orientation: 'vertical'}).right().up();
   }
 }
+
+Drone.extend(piltavla);
+
+// Test: CanaryMod 1.2 (Minecraft 1.8), ScriptCraft 3.1.2
