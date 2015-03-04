@@ -3,12 +3,11 @@
 /*jslint indent:2*/
 var Drone = require('drone');
 
-// Skapar en väg med en piltavla vid slutet av vägen.
-// Anropas genom att skriva "/js piltavla(20)" i chatten.
+// Creates a path with a target at the far end
+// Invoke by typing "/js target(20)" in the chat
 function target(leng) {
   leng = leng || 20;
-  // We're a drone
-  var drone = this,
+  var drone = this, // We're extending a drone
     colors,
     i,
     bm;
