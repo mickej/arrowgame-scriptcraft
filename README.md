@@ -12,8 +12,9 @@ Keep in mind that it's really useful to have had a look at the JavaScript guides
 First we want to build the target &ndash; I thought a path leading to the target might be cool.
 Start by creating a file named target.js in ScriptCraft's plugin folder.
 Then we'll create a function accepting one parameter telling how long the path leading up to the target should be.
-The path is done with the `box`function and the target with `arc`. The target consists of wool in various colors.
+The path is made with the `box`function and the target with `arc`. The target consists of wool in various colors.
 
+TODO:code
 ```javascript
 'use strict';
 var Drone = require('drone');
@@ -56,21 +57,24 @@ function piltavla(leng) {
 Drone.extend(piltavla);
 ```
 
-När skriptet är tillagt är det möjligt att skapa piltavlan genom att anropa funktionen `piltavla` inne i Minecraft. Det görs genom att skriva `/js piltavla(20)` i chatten.
+When the script has been added, it is possible to create the target by calling the `target` function from within Minecraft. This is done by typing `/js target(20)` in the chat.
 
-## Pil träffar tavlan
+## An arrow hits the target
 
-Nu ska vi använda oss av events, händelser, som skickas mellan funktioner i ett program. Detta används flitigt i Scratch. Ta detta exemplet:
+No we'll use events send between functions in a program. This is often used in Scratch. Taking this example,
 
+TODO:image
 ![scratch_event](https://cloud.githubusercontent.com/assets/4598641/6432954/446533be-c063-11e4-9f3d-db7df911d5a1.png)
 
-Här är mellanslag ett event som skickas från Scratch när man trycker på mellanslag. Jag har även skapat ett eget event som heter `ett event` och det skickas när man trycker på mellanslag. Det är så event funkar, de skickas och alla kan fånga upp dem.
+Here, `space` is an event sent by Scratch when you press the space bar. In addition, I have created my own event called `an event` which is sent when the space bar is pressed. That's how events work; they can be sent and anyone can catch them.
 
-Vi ska nu göra en funktion som listar ut vilket block som träffas av en pil och om det är något av blocken i piltavlan så ska spelaren som sköt pilen få poäng. När ett block träffas av en pil skickar ScriptCraft ett event som heter `projectileHit`. Med hjälp av det ska vi lista ut vilket block som träffades och om det var något av blocken i vår piltavla. Detta kan göras i samma fil som du gjorde innan, men jag valde att ha det i en ny fil som jag kallade `pil_events.js`.
+We will no create a function to find out which block is hit by an arrow and if it is one of the blocks in target, the shooter of the arrow should get a score. When a block is hit by an arrow, ScriptCraft sends an event called `projectileHit`. Using that, we will find out which block was hit and it i was one of the blocks in our target. This can be done in the same file as you created efore, however, I chose to put it in a new file called `arrow_event.js`.
 
-### Vilket block träffas?
+### Which block was hit?
 
-Vi börjar med att göra funktionen som tar fram det block som träffades.
+We start by creating the function finding which block was hit.
+
+TODO:code
 ```javascript
 function isWoolly(block) {
     return block.typeId === blocks.wool.white; // framgår av blocks.js att detta är huvudtypen
@@ -126,23 +130,26 @@ var findHitBlock = function(location) {
 } // findHitBlock
 ```
 
-## Spara poäng
+## Keeping a tab on the scores
 
-För att kunna spara poäng för spelarna så behöver vi en variabel. I denna variabel kommer spelare sparas ungefär så här:
+To save the players' scores, we need a variable. This variable will store players in this fashion:
 ```javascript
 spelare1 -> 3
 spelare2 -> 6
 ```
 
-Så här ser koden ut.
+This is what the code looks like.
+
+TODO:code
 ```javascript
 // Detta är vår variabel som sparar poängen
 var scores = {}
 ```
 
-## Hitta träffat block och ge poäng
+## Find the block hit and award points
 
-Nu är det då dags för koden som anropas när eventet `projectileHit` skickas. Vi använder oss av funktionen vi skrev innan för att hitta blocket som träffades och variabeln `scores` för att spara poäng om spelaren träffade rätt block.
+Now it's finally time for the code called when the `projectileHit` event is sent.
+We use the function we wrote before to find the block hit and the `scores` variable to save the score if the player hit the right block.
 
 ```javascript
 // Detta är koden som anropas när en pil träffar ett block.
@@ -183,4 +190,4 @@ events.projectileHit( function (event) {
 });
 ```
 
-`dartScores` är en funktion för att skriva ut alla poängen till chattfönstret. `echo` skriver ut en rad i chatten och vi anropar den i en loop för varje spelare som finns i variabeln `scores`.
+`dartScores` is a function for printing all scores in the chat. `echo` prints a line in the chat and we call it in a loop for each player saved in the `scores` variable.
