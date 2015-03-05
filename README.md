@@ -1,94 +1,100 @@
 # arrowgame-scriptcraft
 
-Ett minispel skrivet i ScriptCraft för http://vaxjo.coderdojo.se/
+A minigame written in ScriptCraft for http://vaxjo.coderdojo.se/
 
 ![2014-01-26_22 07 43-638x300](https://cloud.githubusercontent.com/assets/4598641/6432951/421aa4d6-c063-11e4-8fcd-06e43d77fb6d.png)
 
-I denna guiden ska vi göra en piltavla som man kan skjuta på och få olika mycket poäng, beroende på vilket block i piltavlan man träffar. Tänk på att det är väldigt bra om man tittat på guiderna för JavaScript innan detta.
+In this guide we'll create a target to shoot to get different scores, depending on what target block is hit.
+Keep in mind that it's really useful to have had a look at the JavaScript guides before diving into this.
 
-## Bygga upp piltavla
+## Creating a target
 
-Först vill vi bygga upp piltavlan &ndash; tänkte att det kunde vara coolt med en väg fram till piltavlan också. Börja med att skapa en fil som heter piltavla.js i plugin-mappen för ScriptCraft. Sedan gör vi en funktion som tar in en parameter som talar om hur lång vägen fram till piltavlan ska vara. Vägen gör vi med funktionen `box` och piltavlan med `arc`. Piltavlan består av ull i olika färger.
+First we want to build the target &ndash; I thought a path leading to the target might be cool.
+Start by creating a file named target.js in ScriptCraft's plugin folder.
+Then we'll create a function accepting one parameter telling how long the path leading up to the target should be.
+The path is made with the `box`function and the target with `arc`. The target consists of wool in various colors.
 
 ```javascript
-'use strict';
 var Drone = require('drone');
 
-// Skapar en väg med en piltavla vid slutet av vägen.
-// Anropas genom att skriva "/js piltavla(20)" i chatten.
-function piltavla(leng) {
+// Creates a path with a target at the far end
+// Invoke by typing "/js target(20)" in the chat
+function target(leng) {
   leng = leng || 20;
-  // Vi är redan en drone
-  var drone = this;
+  var drone = this, // We're extending a drone
+    colors,
+    i,
+    bm;
 
-  // Skapa startplats, där man ska skjuta ifrån
+  // Create the starting point to shoot from
   drone.box(blocks.gold, 3, 1, 1);
   drone.fwd();
 
-  // Skapa vägen fram till piltavlan
+  // Create the path to the target
   drone.box(blocks.iron, 3, 1, leng - 1);
   drone.fwd(leng - 1);
   drone.left(2);
   drone.up(1);
 
-  // Nu ska vi göra piltavlan. Den är lite mer avancerad
-  // Börja med att ange vilka färger den ska bestå av
-  var colors = [blocks.wool.yellow, blocks.wool.red, blocks.wool.white, blocks.wool.black];
-  for (var i = 0;i < colors.length; i += 1) {
-    var bm = drone.getBlockIdAndMeta(colors[i]);
+  // Now let's make the target. It's a bit more involved
+  // Start by listing which colors it should consist of
+  colors = [blocks.wool.yellow, blocks.wool.red, blocks.wool.white, blocks.wool.black];
+  for (i = 0; i < colors.length; i += 1) {
+    bm = drone.getBlockIdAndMeta(colors[i]);
     drone.arc({
-        blockType: bm[0],
-        meta: bm[1],
-        radius: 3 - i,
-        strokeWidth: 1,
-        quadrants: {topright: true,
-                    topleft: true,
-                    bottomright: true,
-                    bottomleft: true},
-        orientation: 'vertical'}).right().up();
+      blockType: bm[0],
+      meta: bm[1],
+      radius: 3 - i,
+      strokeWidth: 1,
+      quadrants: {topright: true,
+                  topleft: true,
+                  bottomright: true,
+                  bottomleft: true},
+      orientation: 'vertical'
+    }).right().up();
   }
 }
 
-Drone.extend(piltavla);
+Drone.extend(target);
 ```
 
-När skriptet är tillagt är det möjligt att skapa piltavlan genom att anropa funktionen `piltavla` inne i Minecraft. Det görs genom att skriva `/js piltavla(20)` i chatten.
+When the script has been added, it is possible to create the target by calling the `target` function from within Minecraft. This is done by typing `/js target(20)` in the chat.
 
-## Pil träffar tavlan
+## An arrow hits the target
 
-Nu ska vi använda oss av events, händelser, som skickas mellan funktioner i ett program. Detta används flitigt i Scratch. Ta detta exemplet:
+No we'll use events send between functions in a program. This is often used in Scratch. Taking this example,
 
-![scratch_event](https://cloud.githubusercontent.com/assets/4598641/6432954/446533be-c063-11e4-9f3d-db7df911d5a1.png)
+![croppercapture 11](https://cloud.githubusercontent.com/assets/4598641/6501101/63f5e9b8-c314-11e4-918f-f5fe3ad51fc4.png)
 
-Här är mellanslag ett event som skickas från Scratch när man trycker på mellanslag. Jag har även skapat ett eget event som heter `ett event` och det skickas när man trycker på mellanslag. Det är så event funkar, de skickas och alla kan fånga upp dem.
+Here, `space` is an event sent by Scratch when you press the space bar. In addition, I have created my own event called `an event` which is sent when the space bar is pressed. That's how events work; they can be sent and anyone can catch them.
 
-Vi ska nu göra en funktion som listar ut vilket block som träffas av en pil och om det är något av blocken i piltavlan så ska spelaren som sköt pilen få poäng. När ett block träffas av en pil skickar ScriptCraft ett event som heter `projectileHit`. Med hjälp av det ska vi lista ut vilket block som träffades och om det var något av blocken i vår piltavla. Detta kan göras i samma fil som du gjorde innan, men jag valde att ha det i en ny fil som jag kallade `pil_events.js`.
+We will no create a function to find out which block is hit by an arrow and if it is one of the blocks in target, the shooter of the arrow should get a score. When a block is hit by an arrow, ScriptCraft sends an event called `projectileHit`. Using that, we will find out which block was hit and it i was one of the blocks in our target. This can be done in the same file as you created efore, however, I chose to put it in a new file called `arrow_event.js`.
 
-### Vilket block träffas?
+### Which block was hit?
 
-Vi börjar med att göra funktionen som tar fram det block som träffades.
+We start by creating the function finding which block was hit.
+
 ```javascript
 function isWoolly(block) {
-    return block.typeId === blocks.wool.white; // framgår av blocks.js att detta är huvudtypen
+  return block.typeId === blocks.wool.white; // This is the main type, according to blocks.js
 }
 
-// Funktion för att hitta vilket block som träffades. Långt ifrån bra, men får duga så länge.
-// Vi får försöka hitta en bättre lösning :)
-// Detta behövs för att blocket man får ut av händelsen projectileHit är blocket som pilen befinner sig inuti
-// och det är oftast luft, men vi vill veta färgen på ullen.
-var findHitBlock = function(location) {
-  var x = Math.floor(location.x);
-  var y = Math.floor(location.y); 
-  var z = Math.floor(location.z);
-  var block = location.world.getBlockAt(x, y, z);
+// Function to find out which block was hit. Far from good, but good enough for now. We need to find a better solution.
+// This is needed since the block returned by the projectileHit event is the block containing the arrow
+// and that is usually air, but we want the color of the wool
+var findHitBlock = function (location) {
+  var x = Math.floor(location.x),
+    y = Math.floor(location.y),
+    z = Math.floor(location.z),
+    block = location.world.getBlockAt(x, y, z),
+    i;
 
-  // Träffpunkten först
+  // First, try the block reported as hit
   if (isWoolly(block)) {
     return block;
   }
 
-  for (var i = 1; i <= 3; i++) {
-    
+  for (i = 1; i <= 3; i += 1) {
     block = location.world.getBlockAt(location.x + i, location.y, location.z);
     if (isWoolly(block)) {
       return block;
@@ -98,7 +104,7 @@ var findHitBlock = function(location) {
     if (isWoolly(block)) {
       return block;
     }
-	
+
     block = location.world.getBlockAt(location.x, location.y + i, location.z);
     if (isWoolly(block)) {
       return block;
@@ -108,64 +114,65 @@ var findHitBlock = function(location) {
     if (isWoolly(block)) {
       return block;
     }
-	
+
     block = location.world.getBlockAt(location.x, location.y, location.z + i);
     if (isWoolly(block)) {
       return block;
     }
-	
+
     block = location.world.getBlockAt(location.x, location.y, location.z - i);
     if (isWoolly(block)) {
       return block;
     }
   }
-} // findHitBlock
+}; // findHitBlock
 ```
 
-## Spara poäng
+## Keeping a tab on the scores
 
-För att kunna spara poäng för spelarna så behöver vi en variabel. I denna variabel kommer spelare sparas ungefär så här:
+To save the players' scores, we need a variable. This variable will store players in this fashion:
 ```javascript
 spelare1 -> 3
 spelare2 -> 6
 ```
 
-Så här ser koden ut.
+This is what the code looks like.
 ```javascript
-// Detta är vår variabel som sparar poängen
-var scores = {}
+  // This is our score keeping variable
+  var scores = {};
 ```
 
-## Hitta träffat block och ge poäng
+## Find the block hit and award points
 
-Nu är det då dags för koden som anropas när eventet `projectileHit` skickas. Vi använder oss av funktionen vi skrev innan för att hitta blocket som träffades och variabeln `scores` för att spara poäng om spelaren träffade rätt block.
+Now it's finally time for the code called when the `projectileHit` event is sent.
+We use the function we wrote before to find the block hit and the `scores` variable to save the score if the player hit the right block.
 
 ```javascript
-// Detta är koden som anropas när en pil träffar ett block.
-// Vi ska lista ut vilket block som träffades och ge poäng till spelaren som sköt iväg pilen.
-events.projectileHit( function (event) {
+// This is the code called when an arrow hits a block.
+// We want to find out which block was hit and award points to the player firing the arrow.
+events.projectileHit(function (event) {
   var projectile = event.projectile,
     shooter = projectile.owner,
-    loc = projectile.location;
-	
-  var block = utils.blockAt(loc);
-   
-  var blockHit = findHitBlock(loc);
-  if ( blockHit === undefined ) {
+    loc = projectile.location,
+    blockHit = findHitBlock(loc),
+    dataValue;
+
+  if (blockHit === undefined) {
     return;
   }
-  // Den färg som blev träffad finns i attributet "data" (mer info i API:et för BlockType)
-  var dataValue = blockHit.typeId;
+
+  // The color that was hit is in the "data" attribute (see the BlockType API for details)
+  dataValue = blockHit.typeId;
   if (blockHit.data !== 0) {
-     dataValue += ':' + blockHit.data; // t.ex. 35:14
+    dataValue += ':' + blockHit.data; // for example, 35:14
   }
-  
-  // Lägg till spelaren till poänglistan om den inte redan är där
+
+  // Add the player to the scores list if it's not already in there
   if (scores[shooter.name] === undefined) {
     scores[shooter.name] = 0;
   }
 
-  // Här listar vi ut vilken färg vi träffade och ger poäng där efter
+  // Here, we find out what color was hit and score accordingly
   if (dataValue === blocks.wool.yellow) {
     scores[shooter.name] += 1;
   } else if (dataValue === blocks.wool.red) {
@@ -179,4 +186,4 @@ events.projectileHit( function (event) {
 });
 ```
 
-`dartScores` är en funktion för att skriva ut alla poängen till chattfönstret. `echo` skriver ut en rad i chatten och vi anropar den i en loop för varje spelare som finns i variabeln `scores`.
+`dartScores` is a function for printing all scores in the chat. `echo` prints a line in the chat and we call it in a loop for each player saved in the `scores` variable.
