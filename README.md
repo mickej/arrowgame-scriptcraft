@@ -63,8 +63,7 @@ When the script has been added, it is possible to create the target by calling t
 
 No we'll use events send between functions in a program. This is often used in Scratch. Taking this example,
 
-TODO:image
-![scratch_event](https://cloud.githubusercontent.com/assets/4598641/6432954/446533be-c063-11e4-9f3d-db7df911d5a1.png)
+![croppercapture 11](https://cloud.githubusercontent.com/assets/4598641/6501101/63f5e9b8-c314-11e4-918f-f5fe3ad51fc4.png)
 
 Here, `space` is an event sent by Scratch when you press the space bar. In addition, I have created my own event called `an event` which is sent when the space bar is pressed. That's how events work; they can be sent and anyone can catch them.
 
