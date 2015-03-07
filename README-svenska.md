@@ -54,6 +54,26 @@ Drone.extend(piltavla);
 
 När skriptet är tillagt är det möjligt att skapa piltavlan genom att anropa funktionen `piltavla` inne i Minecraft. Det görs genom att skriva `/js piltavla(20)` i chatten.
 
+## Utforska piltavlan
+![2015-03-07_10 09 36](https://cloud.githubusercontent.com/assets/4598641/6540878/473d919c-c4b6-11e4-881e-2286a708aa1b.png)
+
+Gå fram till tavlan.
+
+Tryck på F3 i chatten för att se felsökningsskärmen, bl.a. dina koordinater för där du står (XYZ) och vad du tittar på. Skärmdumpen visar att jag står på 
+*222.320, 63, 100.599* ("XYZ") och tittar på *219, 64, 100* ("Looking at").
+
+Jag skriver `/js var b=self.world.getBlockAt(219,64,100)` och får variabeln `b` med blocket jag tittar på. 
+Kommandot ger ingen mer utskrift.
+
+`/js b` visar blockets detaljerade data. Testa själv!
+
+`/js b.typeId` ger "35", vilket är `blocks.wool.white`.
+Men eftersom ull också har färg behöver vi också kontrollera 
+`/js b.data`
+som ger "14". Detta är `blocks.wool.red`, vilket man kan ser genom att skriva `/js blocks.wool.red`
+
+Stäng av felsökningsskärmen genom att trycka på F3 igen.
+
 ## Pil träffar tavlan
 
 Nu ska vi använda oss av events, händelser, som skickas mellan funktioner i ett program. Detta används flitigt i Scratch. Ta detta exemplet:
