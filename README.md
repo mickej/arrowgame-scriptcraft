@@ -60,6 +60,20 @@ Drone.extend(target);
 
 When the script has been added, it is possible to create the target by calling the `target` function from within Minecraft. This is done by typing `/js target(20)` in the chat.
 
+## Exploring the target
+![2015-03-07_10 09 36](https://cloud.githubusercontent.com/assets/4598641/6540878/473d919c-c4b6-11e4-881e-2286a708aa1b.png)
+
+Walk up to the target.
+
+Press F3 in the chat to see the debug screen which includes your coordinates, both where you are standing (XYZ) and what you are looking at. In the screenshot, I am standing at *222.320, 63, 100.599* ("XYZ"), looking at *219, 64, 100* ("Looking at")
+
+Typing `/js var b=self.world.getBlockAt(219, 64, 100)` gives me a variable `b` with the block I'm looking at.
+
+`/js b` shows details of the block. Try it on your own!
+
+`/js b.typeId` gives "35", which is blocks.wool.white (35). But, since wool has a color we also need to check 
+`/js b.data` which gives us "14". This is blocks.wool.red, which you can verify by typing `/js blocks.wool.red`
+
 ## An arrow hits the target
 
 No we'll use events send between functions in a program. This is often used in Scratch. Taking this example,
